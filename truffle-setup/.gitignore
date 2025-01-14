@@ -1,0 +1,3 @@
+# Truffle artifacts
+build/
+*.json
