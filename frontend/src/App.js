@@ -24,7 +24,6 @@ function App() {
                     const userNotes = await notesStorage.methods.getNotes().call({ from: accounts[0] });
                     setNotes(userNotes);
 
-                    // Listen for account changes
                     window.ethereum.on("accountsChanged", async (accounts) => {
                         setAccount(accounts[0]);
                         const updatedNotes = await notesStorage.methods.getNotes().call({ from: accounts[0] });
@@ -46,7 +45,7 @@ function App() {
             alert("Note cannot be empty. Please enter a valid note.");
             return;
         }
-    
+
         if (contract) {
             try {
                 await contract.methods.addNote(newNote).send({ from: account });
@@ -57,31 +56,74 @@ function App() {
                 console.error("Error adding note:", error);
             }
         }
-    };    
+    };
+
+    const editNote = async (index, updatedNote) => {
+        if (contract) {
+            try {
+                await contract.methods.editNote(index, updatedNote).send({ from: account });
+                const updatedNotes = await contract.methods.getNotes().call({ from: account });
+                setNotes(updatedNotes);
+            } catch (error) {
+                console.error("Error editing note:", error);
+            }
+        }
+    };
+
+    const handleEdit = (index) => {
+        const updatedNote = prompt("Edit your note:", notes[index]);
+        if (updatedNote) editNote(index, updatedNote);
+    };
+
+    const deleteNote = async (index) => {
+        if (contract) {
+            try {
+                await contract.methods.deleteNote(index).send({ from: account });
+                const updatedNotes = await contract.methods.getNotes().call({ from: account });
+                setNotes(updatedNotes);
+            } catch (error) {
+                console.error("Error deleting note:", error);
+            }
+        }
+    };
+
+    const handleDelete = (index) => {
+        if (window.confirm("Are you sure you want to delete this note?")) {
+            deleteNote(index);
+        }
+    };
 
     return (
-        <div style={{ padding: "20px" }}>
-            <h1>Notes Storage DApp</h1>
-            <p>
+        <div className="container mt-5">
+            <h1 className="text-center mb-4">Notes Storage DApp</h1>
+            <div className="mb-4">
                 <strong>Connected Account:</strong> {account ? account : "Not connected"}
-            </p>
-            <div style={{ marginBottom: "20px" }}>
+            </div>
+            <div className="input-group mb-3">
                 <input
                     type="text"
                     value={newNote}
                     onChange={(e) => setNewNote(e.target.value)}
                     placeholder="Enter a new note"
-                    style={{ padding: "10px", width: "300px", marginRight: "10px" }}
+                    className="form-control"
                 />
-                <button onClick={addNote} style={{ padding: "10px 20px", cursor: "pointer" }}>
+                <button onClick={addNote} className="btn btn-primary">
                     Add Note
                 </button>
             </div>
             <h3>Your Notes:</h3>
-            <ul>
+            <ul className="list-group">
                 {notes.map((note, index) => (
-                    <li key={index} style={{ padding: "5px 0" }}>
+                    <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
                         {note}
+                        <div>
+                            <button onClick={() => handleEdit(index)} className="btn btn-warning btn-sm me-2">
+                                Edit
+                            </button>
+                            <button onClick={() => handleDelete(index)} className="btn btn-danger btn-sm">
+                                Delete
+                            </button>
+                        </div>
                     </li>
                 ))}
             </ul>
