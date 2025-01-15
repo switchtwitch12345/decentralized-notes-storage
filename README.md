@@ -64,7 +64,7 @@ Ensure the following are installed on your system:
    npm install
    ```
 
-3. **Update `contractInfo.js` [CONTRACT_ABI and CONTRACT_ADDRESS] as per your deployed     contract `[truffle-setup/build/NotesStorage.json]`.**
+3. **Update `contractInfo.js` as per your deployed contract `[truffle-setup/build/contracts/NotesStorage.json]`.**
     ```
     export const CONTRACT_ABI = []; // Your contract ABI here
     
